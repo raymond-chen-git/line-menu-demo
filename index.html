@@ -3,128 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LINE@ 選單切換互動展示</title>
+    <title>LINE@ 選單精準熱區切換展示</title>
     <style>
-        /* 隱藏原生滑鼠游標，換上 LINE 聊天室經典藍色背景 */
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #849ebf; 
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* 讓選單貼齊底部 */
-            align-items: center;
+            margin: 0; padding: 0; background-color: #222; height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            overflow: hidden; cursor: none; font-family: sans-serif;
+        }
+
+        .hint-text { color: #aaa; font-size: 0.95rem; margin-bottom: 20px; letter-spacing: 1px; }
+
+        .phone-mockup {
+            width: 320px; height: 650px; border: 14px solid #111; border-radius: 40px;
+            position: relative; background-color: #7490C4; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             overflow: hidden;
-            cursor: none; /* ★ 隱藏原生游標 ★ */
-            font-family: sans-serif;
         }
 
-        /* 畫面頂部的提示文字 */
-        .hint-text {
-            position: absolute;
-            top: 40%;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            pointer-events: none; /* 確保不會擋到滑鼠 */
-            background: rgba(0,0,0,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
+        .phone-notch {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 25px; background-color: #111;
+            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 10;
         }
 
-        /* 選單圖片容器 */
+        .chat-area {
+            width: 100%; height: 100%; padding: 50px 15px 15px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 280px;
+        }
+
+        .chat-bubble {
+            background: #fff; padding: 12px 16px; border-radius: 16px; border-top-left-radius: 4px;
+            font-size: 0.85rem; color: #333; width: fit-content; max-width: 85%; margin-bottom: 10px; line-height: 1.5;
+        }
+
+        /* 選單容器 */
         .menu-container {
-            width: 100%;
-            max-width: 500px; /* 限制最大寬度，模擬手機 */
-            position: relative;
-            background: #fff;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+            position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
         }
 
-        /* 選單圖片本體 */
         #menu-image {
-            width: 100%;
-            display: block;
-            user-select: none;
-            -webkit-user-drag: none;
-            transition: opacity 0.15s ease-in-out; /* 切換時的微漸變，質感更好 */
+            width: 100%; display: block; user-select: none; -webkit-user-drag: none;
         }
 
-        /* ★ 自訂的觸控光暈游標 ★ */
+        /* --- ★ 隱形熱區 (Hotspot) 設定 ★ --- */
+        .hotspot {
+            position: absolute;
+            z-index: 5;
+            /* ⚠️ DEBUG 模式：設定為 rgba(255,0,0,0.4) 會有紅色半透明框，方便你對準按鈕。
+               👉 等你對準之後，把這裡改成 transparent 就可以把它隱藏起來！ */
+            background-color: rgba(255, 0, 0, 0.4); 
+        }
+
+        /* 切換到 B 選單的熱區 (假設按鈕在右上角) */
+        #hotspot-to-B {
+            top: 0%;      /* 距離頂部 0% */
+            right: 0%;    /* 距離右邊 0% */
+            width: 50%;   /* 寬度佔選單的一半 */
+            height: 30%;  /* 高度佔選單的 30% */
+        }
+
+        /* 切換到 A 選單的熱區 (假設按鈕在左上角) */
+        #hotspot-to-A {
+            top: 0%;      /* 距離頂部 0% */
+            left: 0%;     /* 距離左邊 0% */
+            width: 50%;   /* 寬度佔選單的一半 */
+            height: 30%;  /* 高度佔選單的 30% */
+            display: none; /* 一開始在 A 選單，所以隱藏回 A 的按鈕 */
+        }
+
+        /* 自訂光暈游標 */
         .custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.3); /* 半透明白底 */
-            border: 2px solid rgba(255, 255, 255, 0.8); /* 白色外圈 */
-            border-radius: 50%;
-            pointer-events: none; /* ★ 絕對不能擋住點擊事件 ★ */
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            transition: transform 0.1s ease-out, background 0.1s ease-out; /* 點擊時的動畫速度 */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+            background: rgba(255, 255, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
+            z-index: 9999; transition: transform 0.1s ease-out, background 0.1s ease-out;
         }
-
-        /* 點擊按下去時的狀態 */
-        .custom-cursor.clicking {
-            transform: translate(-50%, -50%) scale(0.7); /* 縮小 */
-            background: rgba(255, 255, 255, 0.7); /* 變亮 */
-        }
+        .custom-cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: rgba(255, 255, 255, 0.7); }
     </style>
 </head>
 <body>
 
-    <div class="hint-text">👆 點擊畫面任意處，測試 API 分頁切換</div>
+    <div class="hint-text">👆 點擊選單上的「特定頁籤」來切換分頁</div>
 
-    <div class="menu-container">
-        <img id="menu-image" src="https://drive.google.com/uc?export=view&id=填入第一頁選單的ID" alt="LINE 選單">
+    <div class="phone-mockup">
+        <div class="phone-notch"></div>
+        <div class="chat-area">
+            <div class="chat-bubble">歡迎！請點擊下方選單的「頁籤」切換不同服務 👇</div>
+        </div>
+
+        <div class="menu-container">
+            <img id="menu-image" src="https://drive.google.com/uc?export=view&id=1Fa4tByYHYhs9J8aSCE7qsTskwW9_1tgi" alt="LINE 選單">
+            
+            <div id="hotspot-to-B" class="hotspot"></div>
+            <div id="hotspot-to-A" class="hotspot"></div>
+        </div>
     </div>
 
     <div class="custom-cursor" id="cursor"></div>
 
     <script>
-        // --- 1. 設定你的兩張選單圖片網址 ---
-        // ★ 請在這裡填入你兩張選單的 Google Drive 圖片 ID ★
-        const imgUrlA = "https://drive.google.com/uc?export=view&id=填入第一頁選單的ID";
-        const imgUrlB = "https://drive.google.com/uc?export=view&id=填入第二頁選單的ID";
+        // 你提供的 A、B 選單圖片 ID
+        const imgUrlA = "https://drive.google.com/uc?export=view&id=1Fa4tByYHYhs9J8aSCE7qsTskwW9_1tgi";
+        const imgUrlB = "https://drive.google.com/uc?export=view&id=1NgtVlEUz8xuwDnIrKfDGqUqdA8QByht0";
 
-        // --- 2. 自訂游標跟隨邏輯 ---
+        // 游標邏輯
         const cursor = document.getElementById('cursor');
-        
         document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
+            cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
         });
+        document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
 
-        // 當滑鼠離開網頁時隱藏光暈
-        document.addEventListener('mouseleave', () => { cursor.style.display = 'none'; });
-        document.addEventListener('mouseenter', () => { cursor.style.display = 'block'; });
-
-        // --- 3. 點擊動畫與圖片切換邏輯 ---
+        // 熱區與圖片邏輯
         const menuImage = document.getElementById('menu-image');
-        let isMenuA = true; // 狀態紀錄
+        const hotspotToA = document.getElementById('hotspot-to-A');
+        const hotspotToB = document.getElementById('hotspot-to-B');
 
-        // 滑鼠按下去 (出現縮小變亮的點擊回饋)
-        document.addEventListener('mousedown', () => {
-            cursor.classList.add('clicking');
+        // 當點擊「切換到 B」的熱區時
+        hotspotToB.addEventListener('mouseup', () => {
+            menuImage.src = imgUrlB;
+            hotspotToB.style.display = 'none'; // 隱藏 B 熱區
+            hotspotToA.style.display = 'block'; // 顯示 A 熱區
         });
 
-        // 滑鼠放開 (恢復原狀並切換圖片)
-        document.addEventListener('mouseup', () => {
-            cursor.classList.remove('clicking');
-            
-            // 為了讓切換有真實感，先讓圖片變透明一點點，再瞬間換圖
-            menuImage.style.opacity = 0.5; 
-            
-            setTimeout(() => {
-                isMenuA = !isMenuA; // 反轉狀態
-                menuImage.src = isMenuA ? imgUrlA : imgUrlB; // 替換圖片
-                menuImage.style.opacity = 1; // 恢復不透明度
-            }, 150); // 150毫秒的延遲，模擬 API 讀取速度
+        // 當點擊「切換回 A」的熱區時
+        hotspotToA.addEventListener('mouseup', () => {
+            menuImage.src = imgUrlA;
+            hotspotToA.style.display = 'none'; // 隱藏 A 熱區
+            hotspotToB.style.display = 'block'; // 顯示 B 熱區
         });
     </script>
 </body>
