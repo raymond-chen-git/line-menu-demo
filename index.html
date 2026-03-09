@@ -25,50 +25,58 @@
             border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 10;
         }
 
+        /* --- ★ 聊天室升級：加入自動滾動與隱藏原生捲軸 ★ --- */
         .chat-area {
-            width: 100%; height: 100%; padding: 50px 15px 15px; box-sizing: border-box;
-            display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 280px;
+            width: 100%; height: 100%; 
+            /* 底部預留 270px 避免被選單擋住 */
+            padding: 50px 15px 270px 15px; 
+            box-sizing: border-box;
+            display: flex; flex-direction: column; 
+            overflow-y: auto; /* 允許內容過多時滾動 */
+            scroll-behavior: smooth; /* 滾動時有平滑動畫 */
+            scrollbar-width: none; /* 隱藏捲軸 (Firefox) */
+        }
+        
+        /* 隱藏捲軸 (Chrome, Safari) */
+        .chat-area::-webkit-scrollbar { display: none; } 
+
+        /* --- ★ 對話泡泡升級：加入彈出動畫 ★ --- */
+        @keyframes popIn {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .chat-bubble {
             background: #fff; padding: 12px 16px; border-radius: 16px; border-top-left-radius: 4px;
             font-size: 0.85rem; color: #333; width: fit-content; max-width: 85%; margin-bottom: 10px; line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            animation: popIn 0.25s ease-out forwards; /* 套用彈出動畫 */
+            flex-shrink: 0; /* 防止泡泡太多時被擠壓變形 */
         }
 
         /* 選單容器 */
         .menu-container {
             position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
+            z-index: 20; /* 確保選單永遠壓在聊天泡泡上面 */
         }
 
         #menu-image {
-            width: 100%; display: block; user-select: none; -webkit-user-drag: none;
+            width: 100%; display: block; user-select: none; -webkit-user-drag: none; cursor: pointer;
         }
 
-        /* --- ★ 隱形熱區 (Hotspot) 設定 ★ --- */
+        /* 隱形熱區 (Hotspot) 設定 */
         .hotspot {
-            position: absolute;
-            z-index: 5;
-            /* ⚠️ 確認紅框位置正確後，把下面這行改成 background-color: transparent; */
+            position: absolute; z-index: 25;
+            /* ⚠️ 確認紅框對位精準後，把這行改成 background-color: transparent; 即可隱藏 */
             background-color: rgba(255, 0, 0, 0.4); 
             cursor: pointer; 
         }
 
-        /* ★ A 切 B 的熱區 (右下角，寬33.33%，高50%) ★ */
-        #hotspot-to-B {
-            bottom: 0%;   /* 貼齊底部 */
-            right: 0%;    /* 貼齊右邊 */
-            width: 33.33%; 
-            height: 50%;  
-        }
+        /* A 切 B 的熱區 (右下角) */
+        #hotspot-to-B { bottom: 0%; right: 0%; width: 33.33%; height: 50%; }
 
-        /* ★ B 切 A 的熱區 (右上角，寬33.33%，高50%) ★ */
-        #hotspot-to-A {
-            top: 0%;      /* 貼齊頂部 */
-            right: 0%;    /* 貼齊右邊 */
-            width: 33.33%; 
-            height: 50%;  
-            display: none; /* 一開始在 A 選單，隱藏 B 切 A 的按鈕 */
-        }
+        /* B 切 A 的熱區 (右上角) */
+        #hotspot-to-A { top: 0%; right: 0%; width: 33.33%; height: 50%; display: none; }
 
         /* 自訂光暈游標 */
         .custom-cursor {
@@ -86,8 +94,9 @@
 
     <div class="phone-mockup">
         <div class="phone-notch"></div>
-        <div class="chat-area">
-            <div class="chat-bubble">歡迎！請點擊下方選單的「頁籤」切換不同服務 👇</div>
+        
+        <div class="chat-area" id="chat-area">
+            <div class="chat-bubble" style="margin-top: auto;">歡迎！請點擊下方選單的「頁籤」切換不同服務 👇</div>
         </div>
 
         <div class="menu-container">
@@ -113,23 +122,47 @@
         document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
         document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
 
-        // 熱區與圖片邏輯
+        // 取得 DOM 元素
         const menuImage = document.getElementById('menu-image');
         const hotspotToA = document.getElementById('hotspot-to-A');
         const hotspotToB = document.getElementById('hotspot-to-B');
+        const chatArea = document.getElementById('chat-area');
+
+        // --- ★ 切換頁籤邏輯 (加入防呆機制) ★ ---
 
         // 當點擊「切換到 B」的熱區時
-        hotspotToB.addEventListener('mouseup', () => {
+        hotspotToB.addEventListener('mouseup', (e) => {
+            e.stopPropagation(); // ★ 阻擋事件往外傳遞，避免觸發「無效點擊」的警告對話框
             menuImage.src = imgUrlB;
             hotspotToB.style.display = 'none'; 
             hotspotToA.style.display = 'block'; 
         });
 
         // 當點擊「切換回 A」的熱區時
-        hotspotToA.addEventListener('mouseup', () => {
+        hotspotToA.addEventListener('mouseup', (e) => {
+            e.stopPropagation(); // ★ 阻擋事件傳遞
             menuImage.src = imgUrlA;
             hotspotToA.style.display = 'none'; 
             hotspotToB.style.display = 'block'; 
+        });
+
+
+        // --- ★ 無效點擊彩蛋邏輯 (狂跳對話框) ★ ---
+        
+        // 當使用者點擊「圖片其他區域」時
+        menuImage.addEventListener('mouseup', () => {
+            // 1. 動態創造一個新的對話泡泡 <div>
+            const newBubble = document.createElement('div');
+            newBubble.classList.add('chat-bubble');
+            newBubble.innerText = 'DEMO 版本無法使用該功能 😅';
+            
+            // 2. 把新泡泡塞進聊天室裡面
+            chatArea.appendChild(newBubble);
+            
+            // 3. 讓聊天室的卷軸「自動往下滑到底」，維持最新對話在視線內
+            setTimeout(() => {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 50);
         });
     </script>
 </body>
