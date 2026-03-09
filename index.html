@@ -48,26 +48,26 @@
         .hotspot {
             position: absolute;
             z-index: 5;
-            /* ⚠️ 調整完位置後，把下面這行改成 background-color: transparent; 就可以隱藏紅框了！ */
+            /* ⚠️ 確認紅框位置正確後，把下面這行改成 background-color: transparent; */
             background-color: rgba(255, 0, 0, 0.4); 
-            cursor: pointer; /* 讓滑鼠移過去有手指圖案(雖然我們隱藏了預設游標，但還是留著比較好) */
+            cursor: pointer; 
         }
 
-        /* 切換到 B 選單的熱區 (目前預設在右上角，請自行調整) */
+        /* ★ A 切 B 的熱區 (右下角，寬33.33%，高50%) ★ */
         #hotspot-to-B {
-            top: 100%;      /* 距離頂部 0% */
-            right: 0%;    /* 距離右邊 0% */
-            width: 33%;   /* 寬度佔選單的一半 */
-            height: 50%;  /* 高度佔選單的 30% */
+            bottom: 0%;   /* 貼齊底部 */
+            right: 0%;    /* 貼齊右邊 */
+            width: 33.33%; 
+            height: 50%;  
         }
 
-        /* 切換到 A 選單的熱區 (目前預設在左上角，請自行調整) */
+        /* ★ B 切 A 的熱區 (右上角，寬33.33%，高50%) ★ */
         #hotspot-to-A {
-            top: 0%;      /* 距離頂部 0% */
-            left: 0%;     /* 距離左邊 0% */
-            width: 50%;   /* 寬度佔選單的一半 */
-            height: 30%;  /* 高度佔選單的 30% */
-            display: none; /* 一開始在 A 選單，所以隱藏回 A 的按鈕 */
+            top: 0%;      /* 貼齊頂部 */
+            right: 0%;    /* 貼齊右邊 */
+            width: 33.33%; 
+            height: 50%;  
+            display: none; /* 一開始在 A 選單，隱藏 B 切 A 的按鈕 */
         }
 
         /* 自訂光暈游標 */
@@ -101,7 +101,7 @@
     <div class="custom-cursor" id="cursor"></div>
 
     <script>
-        // ★ 已改為直接讀取同資料夾的 PNG 檔案 ★
+        // 讀取同資料夾的 PNG 檔案
         const imgUrlA = "menu-A.png";
         const imgUrlB = "menu-B.png";
 
@@ -121,15 +121,15 @@
         // 當點擊「切換到 B」的熱區時
         hotspotToB.addEventListener('mouseup', () => {
             menuImage.src = imgUrlB;
-            hotspotToB.style.display = 'none'; // 隱藏 B 熱區
-            hotspotToA.style.display = 'block'; // 顯示 A 熱區
+            hotspotToB.style.display = 'none'; 
+            hotspotToA.style.display = 'block'; 
         });
 
         // 當點擊「切換回 A」的熱區時
         hotspotToA.addEventListener('mouseup', () => {
             menuImage.src = imgUrlA;
-            hotspotToA.style.display = 'none'; // 隱藏 A 熱區
-            hotspotToB.style.display = 'block'; // 顯示 B 熱區
+            hotspotToA.style.display = 'none'; 
+            hotspotToB.style.display = 'block'; 
         });
     </script>
 </body>
