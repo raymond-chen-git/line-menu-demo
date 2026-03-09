@@ -13,16 +13,31 @@
 
         .hint-text { color: #aaa; font-size: 0.95rem; margin-bottom: 20px; letter-spacing: 1px; }
 
+/* --- [新增/修改] 手機模擬器外框 --- */
         .phone-mockup {
-            width: 320px; height: 650px; border: 14px solid #111; border-radius: 40px;
-            position: relative; background-color: #7490C4; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            overflow: hidden;
+            width: 320px;
+            height: 650px;
+            /* ★ [修改] 手機外殼顏色：改為金屬質感的宇宙橘色 (#E67E22) ★ */
+            border: 14px solid #E67E22; 
+            border-radius: 44px; /* Slightly more rounded like newer iPhones */
+            position: relative;
+            background-color: #7490C4; /* LINE 聊天室經典藍色 */
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            overflow: hidden; 
         }
 
+        /* --- [修改] 將原本的「瀏海」改為「動態島 (Dynamic Island)」 --- */
         .phone-notch {
-            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 25px; background-color: #111;
-            border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; z-index: 10;
+            position: absolute;
+            top: 10px; /* 從頂部稍微往下移一點 */
+            left: 50%;
+            transform: translateX(-50%);
+            /* ★ 改為圓柱形 (pill-shaped) ★ */
+            width: 90px;
+            height: 18px;
+            background-color: #000;
+            border-radius: 20px;
+            z-index: 10;
         }
 
         .chat-area {
