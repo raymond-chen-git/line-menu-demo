@@ -48,12 +48,12 @@
         .hotspot {
             position: absolute;
             z-index: 5;
-            /* ⚠️ DEBUG 模式：設定為 rgba(255,0,0,0.4) 會有紅色半透明框，方便你對準按鈕。
-               👉 等你對準之後，把這裡改成 transparent 就可以把它隱藏起來！ */
+            /* ⚠️ 調整完位置後，把下面這行改成 background-color: transparent; 就可以隱藏紅框了！ */
             background-color: rgba(255, 0, 0, 0.4); 
+            cursor: pointer; /* 讓滑鼠移過去有手指圖案(雖然我們隱藏了預設游標，但還是留著比較好) */
         }
 
-        /* 切換到 B 選單的熱區 (假設按鈕在右上角) */
+        /* 切換到 B 選單的熱區 (目前預設在右上角，請自行調整) */
         #hotspot-to-B {
             top: 0%;      /* 距離頂部 0% */
             right: 0%;    /* 距離右邊 0% */
@@ -61,7 +61,7 @@
             height: 30%;  /* 高度佔選單的 30% */
         }
 
-        /* 切換到 A 選單的熱區 (假設按鈕在左上角) */
+        /* 切換到 A 選單的熱區 (目前預設在左上角，請自行調整) */
         #hotspot-to-A {
             top: 0%;      /* 距離頂部 0% */
             left: 0%;     /* 距離左邊 0% */
@@ -91,7 +91,7 @@
         </div>
 
         <div class="menu-container">
-            <img id="menu-image" src="https://drive.google.com/uc?export=view&id=1Fa4tByYHYhs9J8aSCE7qsTskwW9_1tgi" alt="LINE 選單">
+            <img id="menu-image" src="menu-A.png" alt="LINE 選單">
             
             <div id="hotspot-to-B" class="hotspot"></div>
             <div id="hotspot-to-A" class="hotspot"></div>
@@ -101,9 +101,9 @@
     <div class="custom-cursor" id="cursor"></div>
 
     <script>
-        // 你提供的 A、B 選單圖片 ID
-        const imgUrlA = "https://drive.google.com/uc?export=view&id=1Fa4tByYHYhs9J8aSCE7qsTskwW9_1tgi";
-        const imgUrlB = "https://drive.google.com/uc?export=view&id=1NgtVlEUz8xuwDnIrKfDGqUqdA8QByht0";
+        // ★ 已改為直接讀取同資料夾的 PNG 檔案 ★
+        const imgUrlA = "menu-A.png";
+        const imgUrlB = "menu-B.png";
 
         // 游標邏輯
         const cursor = document.getElementById('cursor');
