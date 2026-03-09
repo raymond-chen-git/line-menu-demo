@@ -5,41 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LINE@ 選單精準熱區切換展示</title>
     <style>
+        /* --- ★ 1. 網頁背景改為亮灰色 ★ --- */
         body {
-            margin: 0; padding: 0; background-color: #222; height: 100vh;
+            margin: 0; padding: 0; 
+            background-color: #f9fafb; /* 亮色背景，讓手機跳出來 */
+            height: 100vh;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             overflow: hidden; cursor: none; font-family: sans-serif;
         }
 
-        .hint-text { color: #aaa; font-size: 0.95rem; margin-bottom: 20px; letter-spacing: 1px; }
+        /* 提示文字改為深灰 */
+        .hint-text { color: #555; font-size: 0.95rem; margin-bottom: 20px; letter-spacing: 1px; font-weight: bold; }
 
-/* --- [新增/修改] 手機模擬器外框 --- */
+        /* --- ★ 2. 金屬髮絲紋宇宙橘外殼 ★ --- */
         .phone-mockup {
-            width: 320px;
-            height: 650px;
-            /* ★ [修改] 手機外殼顏色：改為金屬質感的宇宙橘色 (#E67E22) ★ */
-            border: 14px solid #E67E22; 
-            border-radius: 44px; /* Slightly more rounded like newer iPhones */
+            width: 320px; 
+            height: 650px; 
+            border-radius: 46px; /* 外圈大圓角 */
+            padding: 14px; /* 模擬手機邊框厚度 */
             position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15); /* 適合亮色背景的柔和陰影 */
+            
+            /* 多重漸層模擬金屬光影與細微拉絲紋理 */
+            background-image: 
+                linear-gradient(90deg, #A25D1D 0%, #E67E22 15%, #FF9F43 30%, #E67E22 50%, #A25D1D 70%, #FF9F43 85%, #E67E22 100%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 1px, transparent 1px, transparent 2px),
+                repeating-linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.1) 1px, transparent 1px, transparent 2px);
+            background-blend-mode: overlay, normal;
+        }
+
+        /* --- ★ 3. 手機螢幕本體 (LINE 藍色背景) ★ --- */
+        .phone-screen {
+            width: 100%;
+            height: 100%;
             background-color: #7490C4; /* LINE 聊天室經典藍色 */
-            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-            overflow: hidden; 
+            border-radius: 32px; /* 內圈小圓角 */
+            position: relative;
+            overflow: hidden; /* 確保選單跟泡泡不會超出螢幕 */
+            border: 1.5px solid rgba(162, 93, 29, 0.6); /* 模擬金屬切邊高光 */
         }
 
-        /* --- [修改] 將原本的「瀏海」改為「動態島 (Dynamic Island)」 --- */
-        .phone-notch {
-            position: absolute;
-            top: 10px; /* 從頂部稍微往下移一點 */
-            left: 50%;
-            transform: translateX(-50%);
-            /* ★ 改為圓柱形 (pill-shaped) ★ */
-            width: 90px;
-            height: 18px;
-            background-color: #000;
-            border-radius: 20px;
-            z-index: 10;
+        /* 動態島 (iPhone 17 Pro 風格) */
+        .dynamic-island {
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            width: 85px; height: 20px; background-color: #000;
+            border-radius: 20px; z-index: 50;
         }
 
+        /* 聊天室範圍 */
         .chat-area {
             width: 100%; height: 100%; 
             padding: 50px 15px 270px 15px; /* 預留底部選單空間 */
@@ -60,6 +74,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); animation: popIn 0.25s ease-out forwards; flex-shrink: 0; 
         }
 
+        /* 選單容器 */
         .menu-container {
             position: absolute; bottom: 0; left: 0; width: 100%; background: #fff; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); 
             z-index: 20; 
@@ -67,21 +82,20 @@
 
         #menu-image { width: 100%; display: block; user-select: none; -webkit-user-drag: none; cursor: pointer; }
 
-        /* --- ★ 隱形熱區共用設定 ★ --- */
         .hotspot {
             position: absolute; z-index: 25; cursor: pointer; 
-            /* 預設隱藏紅框。若你想檢查位置，可以改成 rgba(255,0,0,0.3) */
-            background-color: transparent; 
+            background-color: transparent; /* 已隱藏紅框 */
         }
 
-        /* --- 自訂光暈游標 --- */
+        /* --- ★ 4. 自訂光暈游標 (增加陰影讓它在亮色背景也看得很清楚) ★ --- */
         .custom-cursor {
             position: fixed; top: 0; left: 0; width: 40px; height: 40px;
-            background: rgba(255, 255, 255, 0.3); border: 2px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.4); border: 2px solid rgba(0, 0, 0, 0.15); /* 加深邊框 */
             border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%);
             z-index: 9999; transition: transform 0.1s ease-out, background 0.1s ease-out;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* 加上陰影 */
         }
-        .custom-cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: rgba(255, 255, 255, 0.7); }
+        .custom-cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body>
@@ -89,40 +103,38 @@
     <div class="hint-text">👆 點擊選單上的「特定頁籤」來切換分頁，或點擊圖示測試互動</div>
 
     <div class="phone-mockup">
-        <div class="phone-notch"></div>
-        
-        <div class="chat-area" id="chat-area">
-            <div class="chat-bubble" style="margin-top: auto;">歡迎！請點擊下方選單的「頁籤」切換不同服務 👇</div>
-        </div>
-
-        <div class="menu-container">
-            <img id="menu-image" src="menu-A.png" alt="LINE 選單">
+        <div class="phone-screen">
             
-            <div id="hotspots-A">
-                <div class="hotspot" style="top:0; left:0; width:100%; height:50%;" data-message="查看最新上市產品 🧴"></div>
-                <div class="hotspot" style="bottom:0; left:0; width:33.33%; height:50%;" data-message="前往查看線上型錄 🛒"></div>
-                <div class="hotspot" style="bottom:0; left:33.33%; width:33.33%; height:50%;" data-message="為您撥打免付費訂購專線 📞"></div>
-                <div class="hotspot" id="btn-to-B" style="bottom:0; right:0; width:33.33%; height:50%;"></div>
+            <div class="dynamic-island"></div>
+            
+            <div class="chat-area" id="chat-area">
+                <div class="chat-bubble" style="margin-top: auto;">歡迎！請點擊下方選單的「頁籤」切換不同服務 👇</div>
             </div>
 
-            <div id="hotspots-B" style="display: none;">
-                <div class="hotspot" style="top:0; left:0; width:33.33%; height:50%;" data-message="正在為您前往粉絲專頁 👍"></div>
-                <div class="hotspot" style="top:0; left:33.33%; width:33.33%; height:50%;" data-message="查詢離您最近的門市 📍"></div>
-                <div class="hotspot" id="btn-to-A" style="top:0; right:0; width:33.33%; height:50%;"></div>
-                <div class="hotspot" style="bottom:0; left:0; width:100%; height:50%;" data-message="客製化您的專屬產品 ✨"></div>
+            <div class="menu-container">
+                <img id="menu-image" src="menu-A.png" alt="LINE 選單">
+                
+                <div id="hotspots-A">
+                    <div class="hotspot" style="top:0; left:0; width:100%; height:50%;" data-message="查看最新上市產品 🧴"></div>
+                    <div class="hotspot" style="bottom:0; left:0; width:33.33%; height:50%;" data-message="前往查看線上型錄 🛒"></div>
+                    <div class="hotspot" style="bottom:0; left:33.33%; width:33.33%; height:50%;" data-message="為您撥打免付費訂購專線 📞"></div>
+                    <div class="hotspot" id="btn-to-B" style="bottom:0; right:0; width:33.33%; height:50%;"></div>
+                </div>
+
+                <div id="hotspots-B" style="display: none;">
+                    <div class="hotspot" style="top:0; left:0; width:33.33%; height:50%;" data-message="正在為您前往粉絲專頁 👍"></div>
+                    <div class="hotspot" style="top:0; left:33.33%; width:33.33%; height:50%;" data-message="查詢離您最近的門市 📍"></div>
+                    <div class="hotspot" id="btn-to-A" style="top:0; right:0; width:33.33%; height:50%;"></div>
+                    <div class="hotspot" style="bottom:0; left:0; width:100%; height:50%;" data-message="客製化您的專屬產品 ✨"></div>
+                </div>
             </div>
 
-        </div>
-    </div>
-
-    <div class="custom-cursor" id="cursor"></div>
+        </div> </div> <div class="custom-cursor" id="cursor"></div>
 
     <script>
-        // 讀取同資料夾的 PNG 檔案
         const imgUrlA = "menu-A.png";
         const imgUrlB = "menu-B.png";
 
-        // 游標邏輯
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
@@ -130,44 +142,34 @@
         document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
         document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
 
-        // 取得 DOM 元素
         const menuImage = document.getElementById('menu-image');
         const hotspotsA = document.getElementById('hotspots-A');
         const hotspotsB = document.getElementById('hotspots-B');
         const chatArea = document.getElementById('chat-area');
 
-        // --- ★ 產生對話泡泡的共用功能 ★ ---
         function addChatBubble(text) {
             const newBubble = document.createElement('div');
             newBubble.classList.add('chat-bubble');
             newBubble.innerText = text;
             chatArea.appendChild(newBubble);
-            
-            setTimeout(() => {
-                chatArea.scrollTop = chatArea.scrollHeight; // 自動往下滾動
-            }, 50);
+            setTimeout(() => { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
         }
 
-        // --- ★ 點擊各個熱區跳出專屬對話 ★ ---
-        // 抓出所有帶有 data-message 的區塊
         document.querySelectorAll('.hotspot[data-message]').forEach(spot => {
             spot.addEventListener('mouseup', (e) => {
-                e.stopPropagation(); // 阻擋事件，避免觸發底圖的無效警告
+                e.stopPropagation(); 
                 const msg = spot.getAttribute('data-message');
                 addChatBubble(msg);
             });
         });
 
-        // --- ★ 分頁切換邏輯 ★ ---
-        // 點擊 A 的右下角 -> 切換到 B
         document.getElementById('btn-to-B').addEventListener('mouseup', (e) => {
             e.stopPropagation(); 
             menuImage.src = imgUrlB;
-            hotspotsA.style.display = 'none'; // 隱藏 A 的熱區
-            hotspotsB.style.display = 'block'; // 顯示 B 的熱區
+            hotspotsA.style.display = 'none'; 
+            hotspotsB.style.display = 'block'; 
         });
 
-        // 點擊 B 的右上角 -> 切換回 A
         document.getElementById('btn-to-A').addEventListener('mouseup', (e) => {
             e.stopPropagation(); 
             menuImage.src = imgUrlA;
@@ -175,7 +177,6 @@
             hotspotsA.style.display = 'block'; 
         });
 
-        // --- ★ 萬一沒點中熱區的防呆彩蛋 (幾乎點不到，因為熱區填滿了) ★ ---
         menuImage.addEventListener('mouseup', () => {
             addChatBubble('DEMO 版本無法使用該功能 😅');
         });
