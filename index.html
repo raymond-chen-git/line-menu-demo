@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE@ 選單切換互動展示</title>
+    <style>
+        /* 隱藏原生滑鼠游標，換上 LINE 聊天室經典藍色背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #849ebf; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* 讓選單貼齊底部 */
+            align-items: center;
+            overflow: hidden;
+            cursor: none; /* ★ 隱藏原生游標 ★ */
+            font-family: sans-serif;
+        }
+
+        /* 畫面頂部的提示文字 */
+        .hint-text {
+            position: absolute;
+            top: 40%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            pointer-events: none; /* 確保不會擋到滑鼠 */
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        /* 選單圖片容器 */
+        .menu-container {
+            width: 100%;
+            max-width: 500px; /* 限制最大寬度，模擬手機 */
+            position: relative;
+            background: #fff;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 選單圖片本體 */
+        #menu-image {
+            width: 100%;
+            display: block;
+            user-select: none;
+            -webkit-user-drag: none;
+            transition: opacity 0.15s ease-in-out; /* 切換時的微漸變，質感更好 */
+        }
+
+        /* ★ 自訂的觸控光暈游標 ★ */
+        .custom-cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3); /* 半透明白底 */
+            border: 2px solid rgba(255, 255, 255, 0.8); /* 白色外圈 */
+            border-radius: 50%;
+            pointer-events: none; /* ★ 絕對不能擋住點擊事件 ★ */
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            transition: transform 0.1s ease-out, background 0.1s ease-out; /* 點擊時的動畫速度 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 點擊按下去時的狀態 */
+        .custom-cursor.clicking {
+            transform: translate(-50%, -50%) scale(0.7); /* 縮小 */
+            background: rgba(255, 255, 255, 0.7); /* 變亮 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hint-text">👆 點擊畫面任意處，測試 API 分頁切換</div>
+
+    <div class="menu-container">
+        <img id="menu-image" src="https://drive.google.com/uc?export=view&id=填入第一頁選單的ID" alt="LINE 選單">
+    </div>
+
+    <div class="custom-cursor" id="cursor"></div>
+
+    <script>
+        // --- 1. 設定你的兩張選單圖片網址 ---
+        // ★ 請在這裡填入你兩張選單的 Google Drive 圖片 ID ★
+        const imgUrlA = "https://drive.google.com/uc?export=view&id=填入第一頁選單的ID";
+        const imgUrlB = "https://drive.google.com/uc?export=view&id=填入第二頁選單的ID";
+
+        // --- 2. 自訂游標跟隨邏輯 ---
+        const cursor = document.getElementById('cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // 當滑鼠離開網頁時隱藏光暈
+        document.addEventListener('mouseleave', () => { cursor.style.display = 'none'; });
+        document.addEventListener('mouseenter', () => { cursor.style.display = 'block'; });
+
+        // --- 3. 點擊動畫與圖片切換邏輯 ---
+        const menuImage = document.getElementById('menu-image');
+        let isMenuA = true; // 狀態紀錄
+
+        // 滑鼠按下去 (出現縮小變亮的點擊回饋)
+        document.addEventListener('mousedown', () => {
+            cursor.classList.add('clicking');
+        });
+
+        // 滑鼠放開 (恢復原狀並切換圖片)
+        document.addEventListener('mouseup', () => {
+            cursor.classList.remove('clicking');
+            
+            // 為了讓切換有真實感，先讓圖片變透明一點點，再瞬間換圖
+            menuImage.style.opacity = 0.5; 
+            
+            setTimeout(() => {
+                isMenuA = !isMenuA; // 反轉狀態
+                menuImage.src = isMenuA ? imgUrlA : imgUrlB; // 替換圖片
+                menuImage.style.opacity = 1; // 恢復不透明度
+            }, 150); // 150毫秒的延遲，模擬 API 讀取速度
+        });
+    </script>
+</body>
+</html>
