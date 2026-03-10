@@ -15,10 +15,13 @@
 
         .hint-text { color: #555; font-size: 0.95rem; margin-bottom: 20px; letter-spacing: 1px; font-weight: bold; }
 
-        /* --- ★ 鈦金屬黑．超窄邊框 iPhone 17 Pro ★ --- */
+        /* --- ★ 鈦金屬黑．超窄邊框 iPhone 17 Pro (加入尺寸鎖死) ★ --- */
         .phone-mockup {
             width: 320px; 
             height: 650px; 
+            min-height: 650px; /* 鎖死最小高度 */
+            max-height: 650px; /* 鎖死最大高度 */
+            flex-shrink: 0;    /* 嚴禁被內部內容撐開或壓縮 */
             border-radius: 46px; 
             padding: 8px; /* 極窄邊框 8px */
             position: relative;
@@ -33,15 +36,15 @@
             background-blend-mode: overlay, normal;
         }
 
-        /* 螢幕本體配合微調 */
+        /* 螢幕本體 */
         .phone-screen {
             width: 100%;
             height: 100%;
             background-color: #7490C4; 
-            border-radius: 38px; /* 內層圓角 38px，與外層 46px 完美平滑平行 */
+            border-radius: 38px; 
             position: relative;
             overflow: hidden; 
-            border: 1px solid rgba(255, 255, 255, 0.15); /* 微微白光模擬玻璃與金屬交界 */
+            border: 1px solid rgba(255, 255, 255, 0.15); 
         }
 
         /* 動態島 */
@@ -51,10 +54,12 @@
             border-radius: 20px; z-index: 50;
         }
 
-        /* 聊天室範圍 */
+        /* --- ★ 聊天室範圍：絕對定位，與手機外殼脫鉤 ★ --- */
         .chat-area {
+            position: absolute; /* 抽離排版，絕對不會撐大外殼 */
+            top: 0; left: 0; right: 0; bottom: 0; /* 填滿整個內螢幕 */
             width: 100%; height: 100%; 
-            padding: 50px 15px 270px 15px; 
+            padding: 50px 15px 270px 15px; /* 預留底部圖文選單的空間 */
             box-sizing: border-box;
             display: flex; flex-direction: column; 
             overflow-y: auto; scroll-behavior: smooth; scrollbar-width: none; 
