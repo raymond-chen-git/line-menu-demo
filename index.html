@@ -145,14 +145,27 @@
     <script>
         const imgUrlA = "menu-A.png";
         const imgUrlB = "menu-B.png";
+const cursor = document.getElementById('cursor');
+        
+        // ★ 新增：如果偵測到觸控螢幕，直接隱藏游標 ★
+        document.addEventListener('touchstart', function() {
+            if (cursor) {
+                cursor.style.display = 'none';
+            }
+        }, { once: true }); // once: true 確保這個事件只觸發一次就解除，節省效能
 
-        const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+            if (cursor.style.display !== 'none') {
+                cursor.style.left = e.clientX + 'px'; 
+                cursor.style.top = e.clientY + 'px';
+            }
         });
-        document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-        document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
-
+        document.addEventListener('mousedown', () => {
+            if (cursor.style.display !== 'none') cursor.classList.add('clicking');
+        });
+        document.addEventListener('mouseup', () => {
+            if (cursor.style.display !== 'none') cursor.classList.remove('clicking');
+        });
         const menuImage = document.getElementById('menu-image');
         const hotspotsA = document.getElementById('hotspots-A');
         const hotspotsB = document.getElementById('hotspots-B');
