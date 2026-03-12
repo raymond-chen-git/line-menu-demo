@@ -99,18 +99,10 @@
         }
         .custom-cursor.clicking { transform: translate(-50%, -50%) scale(0.7); background: rgba(0, 0, 0, 0.1); }
     
-/* 在觸控設備(如手機)上自動隱藏自訂游標 */
-        @media (pointer: coarse) {
-            .custom-cursor {
-                display: none !important;
-            }
-        }    
     </style>
 </head>
 <body>
-
-    <div class="hint-text">👆 點擊選單上的「特定頁籤」來切換分頁，或點擊圖示測試互動</div>
-
+<div class="hint-text">點擊選單圖示切換選單或測試互動</div>
     <div class="phone-mockup">
         <div class="phone-screen">
             <div class="dynamic-island"></div>
@@ -146,26 +138,11 @@
         const imgUrlA = "menu-A.png";
         const imgUrlB = "menu-B.png";
 const cursor = document.getElementById('cursor');
-        
-        // ★ 新增：如果偵測到觸控螢幕，直接隱藏游標 ★
-        document.addEventListener('touchstart', function() {
-            if (cursor) {
-                cursor.style.display = 'none';
-            }
-        }, { once: true }); // once: true 確保這個事件只觸發一次就解除，節省效能
-
         document.addEventListener('mousemove', (e) => {
-            if (cursor.style.display !== 'none') {
-                cursor.style.left = e.clientX + 'px'; 
-                cursor.style.top = e.clientY + 'px';
-            }
+            cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
         });
-        document.addEventListener('mousedown', () => {
-            if (cursor.style.display !== 'none') cursor.classList.add('clicking');
-        });
-        document.addEventListener('mouseup', () => {
-            if (cursor.style.display !== 'none') cursor.classList.remove('clicking');
-        });
+        document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
+        document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
         const menuImage = document.getElementById('menu-image');
         const hotspotsA = document.getElementById('hotspots-A');
         const hotspotsB = document.getElementById('hotspots-B');
